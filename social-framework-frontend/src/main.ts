@@ -1,0 +1,74 @@
+// The Vue build version to load with the `import` command
+// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+import Vue from 'vue';
+import VueAxios from 'vue-axios';
+import VueAuthenticate from 'vue-authenticate';
+import axios from 'axios';
+import App from './App.vue';
+import router from './router';
+
+Vue.config.productionTip = false;
+
+Vue.use(VueAxios, axios);
+
+Vue.use(VueAuthenticate, {
+  baseUrl: 'http://localhost:3000/auth', // Your API domain
+
+  providers: {
+    facebook: {
+      clientId: '1927971220769787',
+      // redirectUri: 'http://localhost:8080/auth/callback' // Your client app URL
+    }
+  },
+
+  bindRequestInterceptor: function () {
+    this.$http.interceptors.request.use((config) => {
+      if (this.isAuthenticated()) {
+        config.headers['Authorization'] = [
+          this.options.tokenType, this.getToken()
+        ].join(' ')
+      } else {
+        delete config.headers['Authorization']
+      }
+      return config
+    })
+  },
+
+  bindResponseInterceptor: function () {
+    this.$http.interceptors.response.use((response) => {
+      this.setToken(response)
+      return response
+    })
+  }
+});
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  router,
+  components: { App },
+  template: '<App/>',
+
+  methods: {
+    /*
+    login: function () {
+      this.$auth.login({ email, password }).then(function () {
+        // Execute application logic after successful login
+      })
+    },
+
+    register: function () {
+      this.$auth.register({ name, email, password }).then(function () {
+        // Execute application logic after successful registration
+      })
+    },
+    */
+
+    authenticate: function (provider) {
+      this.$auth.authenticate(provider).then(function () {
+        // Execute application logic after successful social authentication
+      })
+    }
+  }
+
+});

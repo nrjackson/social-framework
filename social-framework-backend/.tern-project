@@ -1,0 +1,34 @@
+{
+  "ecmaVersion": 6,
+  "plugins": {
+    "guess-types": {
+      
+    },
+    "node": {
+      
+    },
+    "requirejs": {
+      "paths": {
+        
+      }
+    },
+    "node-express": {
+      
+    },
+    "gulp": {
+      
+    },
+    "requirejs-extension": {
+      
+    },
+    "bootstrap": {
+      
+    }
+  },
+  "libs": [
+    "ecma5",
+    "browser",
+    "underscore",
+    "jquery"
+  ]
+}
