@@ -1,6 +1,13 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <div class="authentication-status__token">Welcome, {{user.email}}</div>
+<!--
+    <div class="authentication-status" v-if="isAuthenticated">
+      You are successfully authenticated
+      <div class="authentication-status__token">Welcome, {{user.email}}</div>
+    </div>
+-->
     <h2>Essential Links</h2>
     <ul>
       <li>
@@ -84,14 +91,8 @@
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
-    }
-  }
-}
+  import Hello from './Hello.ts'
+  export default Hello
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

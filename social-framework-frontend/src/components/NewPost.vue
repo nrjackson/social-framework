@@ -17,26 +17,10 @@
 </template>
 
 <script>
-import PostsService from '@/services/PostsService'
-export default {
-  name: 'NewPost',
-  data () {
-    return {
-      title: '',
-      body: ''
-    }
-  },
-  methods: {
-    async addPost () {
-      await PostsService.addPost({
-        title: this.title,
-        body: this.body
-      })
-      this.$router.push({ name: 'Posts' })
-    }
-  }
-}
+  import NewPost from './NewPost.ts'
+  export default NewPost
 </script>
+
 <style type="text/css">
 .form input, .form textarea {
   width: 500px;

@@ -1,17 +1,33 @@
 import { injectable } from 'inversify';
 
-@injectable()
-export class JwtService {
+export interface JwtService {
+  getToken(): String;
+  saveToken(token: String);
+  destroyToken();
+}
 
-  getToken(): String {
-    return window.localStorage['jwtToken'];
+@injectable()
+export class JwtServiceImpl {
+
+  public getToken(): String {
+    console.log('getToken(): ls = %j', window.localStorage);
+    let token = window.localStorage['jwtToken'];
+
+    if (token && token !== 'undefined') {
+      console.log('getToken(): return token: %j', token);
+      return token;
+    } else {
+      this.destroyToken();
+      console.log('getToken(): no token');
+      return null;
+    }
   }
 
-  saveToken(token: String) {
+  public saveToken(token: String) {
     window.localStorage['jwtToken'] = token;
   }
 
-  destroyToken() {
+  public destroyToken() {
     window.localStorage.removeItem('jwtToken');
   }
 

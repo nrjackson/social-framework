@@ -1,7 +1,7 @@
 <template>
-  <button @click="authenticate('facebook')">auth Facebook</button>
-  <div class="posts">
-    <h1>Add Post</h1>
+  <div class="login">
+    <button @click="facebookLogin">auth Facebook</button>
+    <h1>Login</h1>
       <div class="form">
         <div>
           <input type="text" name="email" placeholder="EMAIL" v-model="email">
@@ -10,32 +10,15 @@
           <input type="text" name="password" placeholder="PASSWORD" v-model="password"></textarea>
         </div>
         <div>
-          <button class="app_post_btn" @click="addPost">Add</button>
+          <button class="app_post_btn" @click="login">Login</button>
         </div>
       </div>
   </div>
 </template>
 
 <script>
-import AuthService from '@/services/AuthService'
-export default {
-  name: 'NewPost',
-  data () {
-    return {
-      title: '',
-      body: ''
-    }
-  },
-  methods: {
-    async addPost () {
-      await AuthService.addPost({
-        title: this.title,
-        body: this.body
-      })
-      this.$router.push({ name: 'Posts' })
-    }
-  }
-}
+  import Login from './Login.ts'
+  export default Login
 </script>
 
 <style type="text/css">

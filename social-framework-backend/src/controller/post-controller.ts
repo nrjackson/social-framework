@@ -8,7 +8,6 @@ import { AuthService } from '../service/auth-service';
 import { IPostService } from '../service/post-service';
 import TYPES from '../constant/types';
 import { IComment } from '../model/comment';
-import { ILiked } from '../model/social';
 // import { IFrontPost, FrontPost } from '../model/decorator/front-post';
 import { ICommentService } from '../service/comment-service';
 import { IUser } from '../model/user';
@@ -29,7 +28,7 @@ export class PostController {
   }
 */
 
-  @httpPost('/')
+  @httpPost('/search/')
   public findPosts(req: Request, res: Response, next: NextFunction): Promise<IPost[]> {
     return new Promise<IPost[]>((resolve, reject) => {
       this.withUser(req, res, next).then((currUser) => {
@@ -84,8 +83,8 @@ export class PostController {
   }
 
   @httpPost('/:id/likes/')
-  public likePost(req: Request, res: Response, next: NextFunction): Promise<ILiked> {
-    return new Promise<ILiked>((resolve, reject) => {
+  public likePost(req: Request, res: Response, next: NextFunction): Promise<IPost> {
+    return new Promise<IPost>((resolve, reject) => {
       this.withUserAndPost(req, res, next, (error, currUser: IUser, thePost: IPost) => {
         console.log('retrieved post: %j', thePost);
         this.postService.like(thePost, currUser).then((likedPost) => {
@@ -99,8 +98,8 @@ export class PostController {
   }
 
   @httpDelete('/:id/likes/')
-  public unlikePost(req: Request, res: Response, next: NextFunction): Promise<ILiked> {
-    return new Promise<ILiked>((resolve, reject) => {
+  public unlikePost(req: Request, res: Response, next: NextFunction): Promise<IPost> {
+    return new Promise<IPost>((resolve, reject) => {
       this.withUserAndPost(req, res, next, (error, currUser: IUser, thePost: IPost) => {
         console.log('retrieved post: %j', thePost);
         this.postService.unlike(thePost, currUser).then((likedPost) => {

@@ -100,6 +100,9 @@ export class TagService extends GraphModelService implements ITagService {
 
   public addTags<T extends IModel>(tags: string[], taggedModel: T): Promise<T> {
     return new Promise<T>((resolve, reject) => {
+      if(!tags || tags.length <= 0) {
+        return resolve(taggedModel);
+      }
       let tagPromises:Promise<ITag>[] = [];
       for(let i=0; i<tags.length; i++) {
         tagPromises.push(this.addTag(tags[i], taggedModel))

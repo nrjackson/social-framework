@@ -1,8 +1,10 @@
-import { inject, injectable } from 'inversify';
+import { inject } from 'inversify';
 import Vue from "vue";
 import Component from "vue-class-component";
-import { AuthService } from 'service/AuthService'
-import { IUser } from 'model/user';
+import { AuthService } from '../service/AuthService'
+import { IUser } from '../model/user';
+import TYPES from '../config/Types';
+import container from "../config/DependencyConfig";
 
 @Component({
     name: 'login',
@@ -15,19 +17,28 @@ import { IUser } from 'model/user';
 })
 
 export default class Login extends Vue {
+  private authService: AuthService
+
   email: string;
   password: string;
 
-  constructor(
-    @inject(TYPES.AuthService) private authService: AuthService
-  ) {
-    super();
+  created (): void {
+    console.log('in created()');
+    this.authService = container.get<AuthService>(TYPES.AuthService);
+    console.log('authService: %j', this.authService);
   }
 
-  public login():Promise<IUser> {
-    return this.authService.attemptAuth({
-      email: this.email,
-      password: this.password
+  public login():void {
+    this.authService.attemptAuth(this.email, this.password).then((user:IUser) => {
+      this.$router.push("/");
+      // Execute application logic after successful login
+    });
+  }
+
+  public facebookLogin():void {
+    this.authService.facebookLogin().then((user:IUser) => {
+      this.$router.push("/");
+      // Execute application logic after successful login
     });
   }
 }
