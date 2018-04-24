@@ -22,6 +22,7 @@ export interface ApiService {
   getSingle<T extends IModel> (url:string):Promise<T>;
   post<T extends IModel> (url:string, params):Promise<T>;
   put<T extends IModel> (url:string, params):Promise<T>;
+  delete<T extends IModel> (url:string):Promise<T>;
 }
 
 @injectable()
@@ -85,5 +86,9 @@ export class ApiServiceImpl implements ApiService {
 
   public put<T extends IModel> (url:string, params):Promise<T> {
     return this.sendRequest<T>('put', url, params);
+  }
+
+  public delete<T extends IModel> (url:string):Promise<T> {
+    return this.sendRequest<T>('delete', url, {});
   }
 }

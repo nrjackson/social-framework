@@ -10,6 +10,8 @@ export interface PostService {
   addPost (params):Promise<IPost>;
   getNumLikes(post: IPost): Promise<Meta<number>>;
   getIsLiked (post: IPost):Promise<Meta<boolean>>;
+  likePost (post: IPost):Promise<IPost>;
+  unlikePost (post: IPost):Promise<IPost>;
 }
 
 @injectable()
@@ -33,7 +35,15 @@ export class PostServiceImpl {
     return this.apiService.getAny<Meta<boolean>>(`posts/${post.id}/likes/user`);
   }
 
+  public likePost (post: IPost):Promise<IPost> {
+    return this.apiService.post<IPost>(`posts/${post.id}/likes/`, {});
+  }
+
+  public unlikePost (post: IPost):Promise<IPost> {
+    return this.apiService.delete<IPost>(`posts/${post.id}/likes/`);
+  }
+
   public addPost (params):Promise<IPost> {
-    return this.apiService.post('posts', {"post": params});
+    return this.apiService.post<IPost>('posts', {"post": params});
   }
 }

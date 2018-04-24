@@ -11,11 +11,17 @@
           <td width="550">Description</td>
           <td width="100" align="center">Action</td>
         </tr>
-        <tr v-for="post in posts">
+        <tr v-for="(post, index) in posts">
           <td>{{ post.title }}</td>
           <td>{{ post.body }}</td>
           <td align="center">
-            <span v-if="!post.isLiked">Like</span><span v-else>Unlike</span> ({{post.numLikes}})
+            <span v-if="!post.isLiked">
+              <button class="app_post_btn" @click="likePost(index)">Like</button>
+            </span>
+            <span v-else>
+              <button class="app_post_btn" @click="unlikePost(index)">Unike</button>
+            </span> 
+            ({{post.numLikes}})
             <router-link v-bind:to="{ name: 'editPost', params: { id: post._id } }">Edit</router-link> |
             <a href="#">Delete</a>
           </td>

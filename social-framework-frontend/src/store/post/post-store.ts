@@ -17,7 +17,7 @@ const storeBuilder = getStoreBuilder<RootState>()
 const moduleBuilder = storeBuilder.module<PostState>("post", initialState)
 const stateReader = moduleBuilder.state();
 
-const post = {
+const postStore = {
     get state() { return stateReader() },
     commitSetPosts: moduleBuilder.commit((state: PostState, payload: { posts: IPost[] }) => {
         state.posts = payload.posts;
@@ -31,4 +31,4 @@ const post = {
     }, "setIsLiked"),
 }
 
-export default post
+export default postStore

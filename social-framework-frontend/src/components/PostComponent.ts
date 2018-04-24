@@ -1,10 +1,10 @@
 import Component from "vue-class-component";
 import TYPES from '../config/Types';
 import container from "../config/DependencyConfig";
-import { Post } from '../model/post';
+import { IPost } from '../model/post';
 import { PostService } from '../service/PostService'
 import AuthComponent from './AuthComponent';
-import post from '../store/post/post'
+import postStore from '../store/post/post-store'
 import { Meta } from "../model/meta";
 
 export default class PostComponent extends AuthComponent {
@@ -12,30 +12,46 @@ export default class PostComponent extends AuthComponent {
 
   msg: string = "Welcome to Your Vue.js App";
 
-  get posts() { return post.state.posts }
+  get posts() { return postStore.state.posts }
 
   protected initialize (): void {
     super.initialize();
     this.postService = container.get<PostService>(TYPES.PostService);
   }
 
+  protected setMeta(index) {
+    this.postService.getNumLikes(postStore.state.posts[index]).then((numLikes:Meta<number>) => {
+      // console.log('setting num likes for index: ' + i + ': ' + numLikes.value);
+      postStore.commitSetNumLikes({index: index, numLikes: numLikes.value});
+    });
+    this.postService.getIsLiked(postStore.state.posts[index]).then((isLiked:Meta<boolean>) => {
+      // console.log('setting num likes for index: ' + i + ': ' + numLikes.value);
+      postStore.commitSetIsLiked({index: index, isLiked: isLiked.value});
+    });
+}
+
   protected findPosts():void {
-    this.postService.fetchPosts().then((posts) => {
+    this.postService.fetchPosts().then((posts:IPost[]) => {
       for(let i=0; i<posts.length; i++) {
         posts[i].numLikes = 0;
         posts[i].isLiked = false;
       }
-      post.commitSetPosts({posts: posts});
+      postStore.commitSetPosts({posts: posts});
       for(let i=0; i<posts.length; i++) {
-        this.postService.getNumLikes(posts[i]).then((numLikes:Meta<number>) => {
-          // console.log('setting num likes for index: ' + i + ': ' + numLikes.value);
-          post.commitSetNumLikes({index: i, numLikes: numLikes.value});
-        });
-        this.postService.getIsLiked(posts[i]).then((isLiked:Meta<boolean>) => {
-          // console.log('setting num likes for index: ' + i + ': ' + numLikes.value);
-          post.commitSetIsLiked({index: i, isLiked: isLiked.value});
-        });
+        this.setMeta(i);
       }
+    });
+  }
+  
+  protected likePost(index):void {
+    this.postService.likePost(postStore.state.posts[index]).then((post:IPost) => {
+      this.setMeta(index);
+    });
+  }
+  
+  protected unlikePost(index):void {
+    this.postService.unlikePost(postStore.state.posts[index]).then((post:IPost) => {
+      this.setMeta(index);
     });
   }
 }
