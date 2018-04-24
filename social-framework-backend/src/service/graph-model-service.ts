@@ -5,6 +5,7 @@ import { IGraphDBClient } from '../utils/graph-db-client';
 import { SearchRelation } from '../model/search/search-item';
 
 export interface IGraphModelService extends IModelService {
+  countRelated(fromModel: IModel, relation: string, toModel: IModel): Promise<number>;
   countRelatedFrom(fromModel: IModel, relation: string): Promise<number>;
   findRelatedFrom<T extends IModel>(fromModel: IModel, relation: string): Promise<T[]>;
   countRelatedTo(toModel: IModel, relation: string): Promise<number>;
@@ -58,6 +59,17 @@ export class GraphModelService extends ModelService<IGraphDBClient> implements I
           reject(error);
         }
         return resolve(results);
+      });
+    });
+  }
+
+  public countRelated(fromModel: IModel, relation: string, toModel: IModel): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+      this.dbClient.countRelated(fromModel, relation, toModel, (error, result:number) => {
+        if(error) {
+          reject(error);
+        }
+        return resolve(result);
       });
     });
   }

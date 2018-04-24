@@ -15,6 +15,7 @@
           <td>{{ post.title }}</td>
           <td>{{ post.body }}</td>
           <td align="center">
+            <span v-if="!post.isLiked">Like</span><span v-else>Unlike</span> ({{post.numLikes}})
             <router-link v-bind:to="{ name: 'editPost', params: { id: post._id } }">Edit</router-link> |
             <a href="#">Delete</a>
           </td>

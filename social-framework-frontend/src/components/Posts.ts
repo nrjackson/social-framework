@@ -3,30 +3,18 @@ import TYPES from '../config/Types';
 import container from "../config/DependencyConfig";
 import { Post } from '../model/post';
 import { PostService } from '../service/PostService'
-import AuthComponent from './AuthComponent';
+import PostComponent from './PostComponent';
 
 @Component({
   name: 'posts',
 })
-export default class Posts extends AuthComponent {
-  private postService: PostService;
-  posts = [];
-
-  msg: string = "Welcome to Your Vue.js App";
-
+export default class Posts extends PostComponent {
   created (): void {
     this.initialize();
-    this.postService = container.get<PostService>(TYPES.PostService);
   }
 
   mounted (): void {
     this.authenticate();
-    this.getPosts();
-  }
-
-  private getPosts():void {
-    this.postService.fetchPosts().then((posts) => {
-      this.posts = posts
-    });
+    this.findPosts();
   }
 }

@@ -1,12 +1,15 @@
 import { inject, injectable } from 'inversify';
 import { ApiService } from './ApiService'
-import { Post } from '../model/post'
+import { IPost } from '../model/post'
 import TYPES from '../config/Types';
 import container from "../config/DependencyConfig";
+import { Meta } from '../model/meta';
 
 export interface PostService {
-  fetchPosts ():Promise<Post[]>;
-  addPost (params):Promise<Post>;
+  fetchPosts ():Promise<IPost[]>;
+  addPost (params):Promise<IPost>;
+  getNumLikes(post: IPost): Promise<Meta<number>>;
+  getIsLiked (post: IPost):Promise<Meta<boolean>>;
 }
 
 @injectable()
@@ -18,11 +21,19 @@ export class PostServiceImpl {
     this.apiService = container.get<ApiService>(TYPES.ApiService);
   }
 
-  public fetchPosts ():Promise<Post[]> {
-    return this.apiService.get<Post[]>('posts');
+  public fetchPosts ():Promise<IPost[]> {
+    return this.apiService.get<IPost[]>('posts');
   }
 
-  public addPost (params):Promise<Post> {
+  public getNumLikes (post: IPost):Promise<Meta<number>> {
+    return this.apiService.getAny<Meta<number>>(`posts/${post.id}/likes/count`);
+  }
+
+  public getIsLiked (post: IPost):Promise<Meta<boolean>> {
+    return this.apiService.getAny<Meta<boolean>>(`posts/${post.id}/likes/user`);
+  }
+
+  public addPost (params):Promise<IPost> {
     return this.apiService.post('posts', {"post": params});
   }
 }

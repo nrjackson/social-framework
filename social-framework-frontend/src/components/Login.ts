@@ -5,6 +5,7 @@ import { AuthService } from '../service/AuthService'
 import { IUser } from '../model/user';
 import TYPES from '../config/Types';
 import container from "../config/DependencyConfig";
+import auth from '../store/auth/auth'
 
 @Component({
     name: 'login',
@@ -28,17 +29,20 @@ export default class Login extends Vue {
     console.log('authService: %j', this.authService);
   }
 
+  private loginSuccess(user: IUser): void {
+    auth.commitSetUser({user: user});
+    this.$router.push("/");
+  }
+
   public login():void {
     this.authService.attemptAuth(this.email, this.password).then((user:IUser) => {
-      this.$router.push("/");
-      // Execute application logic after successful login
+      this.loginSuccess(user);
     });
   }
 
   public facebookLogin():void {
     this.authService.facebookLogin().then((user:IUser) => {
-      this.$router.push("/");
-      // Execute application logic after successful login
+      this.loginSuccess(user);
     });
   }
 }

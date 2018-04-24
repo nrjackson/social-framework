@@ -1,9 +1,9 @@
 const TYPES = {
-  Auth: Symbol.for('Auth'),
   AuthService: Symbol.for('AuthService'),
   ApiService: Symbol.for('ApiService'),
   PostService: Symbol.for('PostService'),
-  VueAuthenticate: Symbol.for('VueAuthenticate'),
+  AuthContainer: Symbol.for('AuthContainer'),
+  Config: Symbol.for('Config'),
   App: Symbol.for('App'),
 };
 

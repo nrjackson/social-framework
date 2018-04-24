@@ -1,81 +1,72 @@
-import { inject, injectable } from 'inversify';
-import VueRx from 'vue-rx';
-import { Observable } from 'rxjs/Rx';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/distinctUntilChanged';
-
-import { ApiService } from '../service/ApiService';
-import { IUser, User } from '../model/user';
-import { isNullOrUndefined } from 'util';
+import { inject, injectable, postConstruct } from 'inversify';
+import Vue from "vue";
 import VueAuthenticate from 'vue-authenticate';
+import { ApiService } from './ApiService';
+// import { AuthContainer } from "./AuthContainer";
+import { IUser } from '../model/user';
 import TYPES from '../config/Types';
 import container from "../config/DependencyConfig";
-import { Auth } from './Auth';
 
 export interface AuthService {
-  attemptAuth(email: string, password: string): Promise<any>;
-  signup(user): Promise<any>;
-  facebookLogin(): Promise<any>;
-  updateUser(user): Promise<any>;
-  initialize(vueAuth: VueAuthenticate): void;
+  preAuth(): Promise<IUser>;
+  attemptAuth(email: string, password: string): Promise<IUser>;
+  signup(user): Promise<IUser>;
+  facebookLogin(): Promise<IUser>;
+  updateUser(user): Promise<IUser>;
 }
 
 @injectable()
 export class AuthServiceImpl implements AuthService {
-  private auth: Auth;
   private apiService: ApiService;
   private vueAuth: VueAuthenticate;
 
-  constructor() {
-    console.log('authService: in constructor');
-    this.auth = container.get<Auth>(TYPES.Auth);
+  constructor () {
     this.apiService = container.get<ApiService>(TYPES.ApiService);
-    // let app:App = container.get<App>(TYPES.App);
-    // this.vueAuth = (app as any).$auth;
-    console.log('apiService: %j', this.apiService);
-    // console.log('vueAuth: %j', this.vueAuth);
-    // this.populate();
-
   }
 
-  public initialize(vueAuth: VueAuthenticate): void {
+  initialize (vueAuth: VueAuthenticate) : void {
     this.vueAuth = vueAuth;
-    console.log('vueAuth: %j', this.vueAuth);
-    this.auth.initialize(vueAuth);
-    this.populate();
   }
-
+/* 
+  constructor() {
+    super();
+    console.log('authService: in constructor');
+    this.authContainer = container.get<AuthContainer>(TYPES.AuthContainer);
+    // console.log('apiService: %j', this.apiService);
+    // console.log('vueAuth: %j', this.vueAuth);
+  }
+ */
   // Verify JWT in localstorage with server & load user's info.
   // This runs once on application startup.
-  populate() {
-    // If JWT detected, attempt to get & store user's info
-    if (this.auth.getToken()) {
-      console.log('populate: token: %j', this.auth.getToken());
-      this.apiService.getSingle<IUser>('/auth/verify').then((user:IUser) => {
-        console.log('setAuth: user to set = %j', user);
-        this.auth.setAuth(user);
-      },
-        err => this.auth.purgeAuth()
-      );
-    } else {
-      // Remove any potential remnants of previous auth states
-      console.log('purging auth');
-      this.auth.purgeAuth();
-    }
+  public preAuth(): Promise<IUser> {
+    return new Promise<IUser>((resolve, reject) => {
+        // If JWT detected, attempt to get & store user's info
+      if (this.vueAuth.getToken()) {
+        console.log('populate: token: %j', this.vueAuth.getToken());
+        this.apiService.getSingle<IUser>('/auth/verify').then((user:IUser) => {
+          console.log('setAuth: user to set = %j', user);
+          return resolve(user);
+          // this.authContainer.setAuth(user);
+        },
+          err => {
+            return reject(err);
+          }
+        );
+      } else {
+        console.log('purging auth');
+        return resolve(null);
+      }
+    });
   }
 
-  public facebookLogin(): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
+  public facebookLogin(): Promise<IUser> {
+    return new Promise<IUser>((resolve, reject) => {
       this.vueAuth.authenticate('facebook', {scope: 'public_profile,email', domain: 'jybe.us'}).then(function (authResponse) {
         if (authResponse.accessToken) {
           this.apiService.post(`/auth/facebook`, {access_token: authResponse.accessToken})
           .then(
-            (data:IUser) => {
-              this.auth.setAuth(data);
-              return resolve(data);
+            (resp) => {
+              return resolve(resp.data);
             }
           );
         }
@@ -83,28 +74,26 @@ export class AuthServiceImpl implements AuthService {
     });
   }
 
-  public attemptAuth(email: string, password: string): Promise<any> {
+  public attemptAuth(email: string, password: string): Promise<IUser> {
     // return this.apiService.post<IUser>('/auth/login', {user: user})
-    return new Promise<any>((resolve, reject) => {
+    return new Promise<IUser>((resolve, reject) => {
       this.vueAuth.login<IUser>({"user": {"email":email, "password":password}})
       .then(
         (resp) => {
           console.log('logged in: user = %j', resp.data);
-          this.auth.setAuth(resp.data);
           return resolve(resp.data);
         }
       );
     });
   }
 
-  public signup(user): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
+  public signup(user): Promise<IUser> {
+    return new Promise<IUser>((resolve, reject) => {
       if (user.password === user.password2) {
         this.apiService.post<IUser>('/auth/signup', {user: user})
           .then(
-            (data:IUser) => {
-              this.auth.setAuth(data);
-              return resolve(data);
+            (user:IUser) => {
+              return resolve(user);
             }
           );
       }
@@ -127,12 +116,11 @@ export class AuthServiceImpl implements AuthService {
   }
 
   // Update the user on the server (email, pass, etc)
-  public updateUser(user): Promise<any> {
-    return new Promise<any>((resolve, reject) => {
+  public updateUser(user): Promise<IUser> {
+    return new Promise<IUser>((resolve, reject) => {
       this.apiService
       .put<IUser>('/user', { user }).then((user:IUser) => {
         // Update the currentUser observable
-        this.auth.updateUser(user);
         return resolve(user);
       });
     });

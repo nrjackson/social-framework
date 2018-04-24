@@ -11,6 +11,7 @@ import { IComment } from '../model/comment';
 // import { IFrontPost, FrontPost } from '../model/decorator/front-post';
 import { ICommentService } from '../service/comment-service';
 import { IUser } from '../model/user';
+import { Meta } from '../model/meta';
 
 @controller('/posts')
 export class PostController {
@@ -78,6 +79,36 @@ export class PostController {
           return result('Post not found', null, null);
         }
         return result(null, currUser, thePost);
+      });
+    });
+  }
+
+  @httpGet('/:id/likes/count')
+  public numLikes(req: Request, res: Response, next: NextFunction): Promise<Meta<number>> {
+    return new Promise<Meta<number>>((resolve, reject) => {
+      this.withUserAndPost(req, res, next, (error, currUser: IUser, thePost: IPost) => {
+        console.log('retrieved post: %j', thePost);
+        this.postService.countLikes(thePost).then((count) => {
+          return resolve(new Meta(count));
+        }).catch((err) => {
+          console.log('newPost: Error counting post likes: ' + err);
+          return reject(err);
+        });
+      });
+    });
+  }
+
+  @httpGet('/:id/likes/user')
+  public isLiked(req: Request, res: Response, next: NextFunction): Promise<Meta<boolean>> {
+    return new Promise<Meta<boolean>>((resolve, reject) => {
+      this.withUserAndPost(req, res, next, (error, currUser: IUser, thePost: IPost) => {
+        console.log('retrieved post: %j', thePost);
+        this.postService.isLikedByUser(thePost, currUser).then((isLiked) => {
+          return resolve(new Meta<boolean>(isLiked));
+        }).catch((err) => {
+          console.log('newPost: Error counting post likes: ' + err);
+          return reject(err);
+        });
       });
     });
   }

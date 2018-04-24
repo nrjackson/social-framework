@@ -2,23 +2,19 @@ import Component from "vue-class-component";
 import { PostService } from '../service/PostService'
 import TYPES from '../config/Types';
 import container from "../config/DependencyConfig";
-import { Post } from '../model/post';
-import AuthComponent from './AuthComponent';
+import { Post, IPost } from '../model/post';
+import PostComponent from "./PostComponent";
 
 @Component({
   name: 'newPost',
 })
 
-export default class NewPost extends AuthComponent {
-  private postService: PostService;
+export default class NewPost extends PostComponent {
   title: string = '';
   body: string = '';
 
-  msg: string = "Welcome to Your Vue.js App";
-
   created (): void {
     this.initialize();
-    this.postService = container.get<PostService>(TYPES.PostService);
   }
 
   mounted (): void {
@@ -29,7 +25,9 @@ export default class NewPost extends AuthComponent {
     this.postService.addPost({
       title: this.title,
       body: this.body
+    }).then((post:IPost) => {
+      this.findPosts();
+      this.$router.push({ name: 'posts' });
     });
-    this.$router.push({ name: 'posts' });
   }
 }
