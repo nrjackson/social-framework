@@ -1,7 +1,7 @@
 import { injectable } from 'inversify';
 
 const devAuthUrl = 'http://localhost:3000';
-const facebookClientId = '1927971220769787';
+const facebookClientId = '123456789';
 
 export interface IConfig {
   getAuthUrl(): string;
