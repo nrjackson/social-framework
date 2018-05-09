@@ -2,7 +2,7 @@ import { injectable, postConstruct } from 'inversify';
 import { IPost } from '../model/post';
 import { IUser } from '../model/user';
 import { ISocialModelService, SocialModelService } from './social-model-service';
-import { Config } from '../constant/config';
+import { SearchItem } from '../model/search/search-item';
 
 export interface IPostService extends ISocialModelService<IPost> {
   getPosts(): Promise<IPost[]>;
@@ -10,8 +10,7 @@ export interface IPostService extends ISocialModelService<IPost> {
   newPost(post: IPost, creator: IUser, tags: string[]): Promise<IPost>;
   updatePost(id: string, post: IPost): Promise<IPost>;
   deletePost(id: string): Promise<any>;
-  countLikes(post: IPost): Promise<number>;
-  isLikedByUser(post: IPost, user: IUser): Promise<boolean>;
+  getPostWithRelations(searchItems: SearchItem[], currUser:IUser): Promise<IPost[]>;
 }
 
 /*
@@ -19,9 +18,10 @@ export interface IPostService extends ISocialModelService<IPost> {
  */
 @injectable()
 export class PostService extends SocialModelService<IPost> implements IPostService {
-  @postConstruct()
-  public initialize() {
-      this.modelName = 'Post';
+  modelName = 'Post';
+  
+  protected getModelName() {
+    return this.modelName;
   }
 
   public getPosts(): Promise<IPost[]> {
@@ -53,19 +53,8 @@ export class PostService extends SocialModelService<IPost> implements IPostServi
     return this.deleteModel(id);
   }
 
-  public countLikes(post: IPost): Promise<number> {
-    return this.countRelatedTo(post, Config.RELATION_LIKE);
+  public getPostWithRelations(searchItems: SearchItem[], currUser:IUser): Promise<IPost[]> {
+    return this.getWithRelations(searchItems, currUser);
   }
 
-  public isLikedByUser(post: IPost, user: IUser): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      this.countRelated(user, Config.RELATION_LIKE, post).then((result:number) => {
-        if(result > 0) return resolve(true);
-        else return resolve(false);
-      }).catch((err) => {
-        console.log('Error finding if user likes post: ' + err);
-        return reject(err);
-      });
-    });
-  }
 }

@@ -1,0 +1,95 @@
+<template>
+  <div class="posts">
+    <h1>Posts</h1>
+    <div v-if="posts.length > 0" class="table-wrap">
+      <div>
+        <router-link v-bind:to="{ name: 'newPost' }" class="">Add Post</router-link>
+      </div>
+      <div v-for="(post) in posts">
+        <table>
+          <tr>
+            <td colspan = "2" width="750">{{ post.title }}</td>
+          </tr>
+          <tr>
+            <td width="550">{{ post.body }}
+            <td align="center">
+              <span v-if="!post.meta.isLiked">
+                <button class="app_post_btn" @click="likePost(post)">Like</button>
+              </span>
+              <span v-else>
+                <button class="app_post_btn" @click="unlikePost(post)">Unike</button>
+              </span> 
+              ({{post.meta.numLikes}})
+              <router-link v-bind:to="{ name: 'editPost', params: { id: post._id } }">Edit</router-link> |
+              <a href="#">Delete</a>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <div v-for="(comment) in post.meta.comments">
+                <div>{{comment.title}}</div>
+                <div>{{comment.body}}</div>
+              </div>
+              <div>
+                <div>
+                  <input type="text" name="commentTitle" placeholder="TITLE" v-model="post.meta.newTitle">
+                </div>
+                <div>
+                  <textarea rows="5" cols="45" placeholder="COMMENT" v-model="post.meta.newBody"></textarea>
+                </div>
+                <div>
+                  <button class="app_post_btn" @click="addComment(post)">Add</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div v-else>
+      There are no posts.. Lets add one now <br /><br />
+      <router-link v-bind:to="{ name: 'newPost' }" class="add_post_link">Add Post</router-link>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Posts from './Posts.ts'
+  export default Posts
+</script>
+
+<style type="text/css">
+.table-wrap {
+  width: 60%;
+  margin: 0 auto;
+  text-align: center;
+}
+table th, table tr {
+  text-align: left;
+}
+table thead {
+  background: #f2f2f2;
+}
+table tr td {
+  padding: 10px;
+}
+table tr:nth-child(odd) {
+  background: #f2f2f2;
+}
+table tr:nth-child(1) {
+  background: #4d7ef7;
+  color: #fff;
+}
+a {
+  color: #4d7ef7;
+  text-decoration: none;
+}
+a.add_post_link {
+  background: #4d7ef7;
+  color: #fff;
+  padding: 10px 80px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: bold;
+}
+</style>

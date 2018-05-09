@@ -7,7 +7,6 @@ import { ISocialModelService, SocialModelService } from './social-model-service'
 
 export interface ICommentService extends ISocialModelService<IComment> {
   addComment(comment: IComment, commentedModel: IModel, commenter: IUser): Promise<IComment>;
-  getComments(): Promise<IComment[]>;
   getComment(id: number): Promise<IComment>;
   updateComment(id: string, comment: IComment): Promise<IComment>;
   deleteComment(id: string): Promise<any>;
@@ -18,9 +17,10 @@ export interface ICommentService extends ISocialModelService<IComment> {
  */
 @injectable()
 export class CommentService extends SocialModelService<IComment> implements ICommentService {
-  @postConstruct()
-  public initialize() {
-      this.modelName = 'Comment';
+  modelName = 'Comment';
+  
+  protected getModelName() {
+    return this.modelName;
   }
 
   public addComment(comment: IComment, commentedModel: IModel, commenter: IUser): Promise<IComment> {
@@ -40,10 +40,6 @@ export class CommentService extends SocialModelService<IComment> implements ICom
         return reject(err);
       });
     });
-  }
-
-  public getComments(): Promise<IComment[]> {
-    return this.getAll();
   }
 
   public getComment(id: number): Promise<IComment> {

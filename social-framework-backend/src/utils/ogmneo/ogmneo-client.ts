@@ -43,7 +43,7 @@ export class OgmNeoDBClient implements IGraphDBClient {
   }
 
   public findRelatedFrom<T extends IModel>(fromModel: IModel, relation: string, result: (error, data: T[]) => void): void {
-    this.findRelated(fromModel,relation,null,'start',true,(error,results:T[]) => {
+    this.findRelated(fromModel,relation,null,'end',true,(error,results:T[]) => {
       return result(error,results);
     });
   }
@@ -55,7 +55,7 @@ export class OgmNeoDBClient implements IGraphDBClient {
   }
 
   public findRelatedTo<T extends IModel>(toModel: IModel, relation: string, result: (error, data: T[]) => void): void {
-    this.findRelated(null,relation,toModel,'end',true,(error,results:T[]) => {
+    this.findRelated(null,relation,toModel,'start',false,(error,results:T[]) => {
       return result(error,results);
     });
   }
@@ -88,11 +88,26 @@ export class OgmNeoDBClient implements IGraphDBClient {
     if(toModel) {
       query = query.endNode(toModel.id);
     }
-    this.relation.findNodes(query,whichNodes,distinct).toArray((error, find: T[]) => {
+    console.log('findRelated query: %j', query)
+    this.relation.findNodes(query,whichNodes,distinct).then((data) => {
+      console.log('findRelated %j results: %j', query, data);
+      let nodes = [];
+      for(let i=0; i<data.length; i++) {
+        let node = data[i][whichNodes];
+        console.log('findRelated node: %j', node);
+        nodes.push(node);
+      }
+      return result(null, nodes);
+    }).catch((error) => {
+      return result(error, null);
+    });
+/*     
+    .toArray((error, find: T[]) => {
       return result(error, find);
     }).catch((error) => {
       return result(error, null);
     });
+ */    
   }
 
   public findOneByProperty<T extends IModel>(collection: string, field: string, value: any, result: (error, data: T) => void): void {
@@ -148,6 +163,7 @@ export class OgmNeoDBClient implements IGraphDBClient {
     console.log('Finding ' + collection + ' by id: ' + objectId);
     //if (_.isInteger(objectId)) {
         let cypher = `MATCH (n:${collection}) WHERE ID(n)=${objectId} RETURN n`;
+        console.log('Find by id: %j', cypher);
 
         try {
         let operation = ogmneo.OperationBuilder.create()

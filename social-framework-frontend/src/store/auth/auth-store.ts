@@ -16,7 +16,7 @@ const storeBuilder = getStoreBuilder<RootState>()
 const moduleBuilder = storeBuilder.module<AuthState>("auth", initialState)
 const stateReader = moduleBuilder.state();
 
-const auth = {
+const authStore = {
     get state() { return stateReader() },
     commitSetUser: moduleBuilder.commit((state: AuthState, payload: { user: IUser }) => {
         state.user = payload.user;
@@ -28,4 +28,4 @@ const auth = {
     }, "purgeUser"),
 }
 
-export default auth;
+export default authStore;

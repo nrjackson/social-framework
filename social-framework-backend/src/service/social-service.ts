@@ -5,9 +5,11 @@ import { IGraphModelService } from './graph-model-service';
 import { IModel } from '../model/model';
 import { Config } from '../constant/config';
 import { ITag } from '../model/tag';
+import { IComment } from '../model/comment';
 
 export interface ISocialService<ModelType extends IModel> {
   getTags(tagged: ModelType): Promise<string[]>;
+  getComments(commented: ModelType): Promise<IComment[]>;
   countLikes(liked: ModelType, liker: IUser): Promise<number>;
   like(liked: ModelType, liker: IUser): Promise<ModelType>;
   unlike(unliked: ModelType, liker: IUser): Promise<ModelType>;
@@ -34,6 +36,10 @@ export class SocialService<ModelType extends IModel> implements ISocialService<M
 
       });
     });
+  }
+
+  public getComments(commented: ModelType): Promise<IComment[]> {
+    return this.modelService.findRelatedFrom<IComment>(commented, Config.RELATION_COMMENT);
   }
 
   public countLikes(liked: ModelType, liker: IUser): Promise<number> {

@@ -1,4 +1,4 @@
-import { IPost } from '../../model/post';
+import { IPost, PostMeta, PostForm } from '../../model/post';
 
 export interface PostState
 {
@@ -6,4 +6,5 @@ export interface PostState
     postsStatus: number;
     post: IPost;
     postStatus: number;
+    postForm: PostForm;
 }

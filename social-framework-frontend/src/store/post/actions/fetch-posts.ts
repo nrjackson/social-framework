@@ -1,0 +1,24 @@
+import { BareActionContext } from "vuex-typex"
+import { PostState } from "../state"
+import { RootState } from "../../index"
+import { PostService } from '../../../service/PostService'
+import TYPES from '../../../config/Types';
+import postStore from "../post-store";
+import postUtils from "./post-utils";
+import setMeta from "./set-meta";
+import { IPost, PostMeta } from "../../../model/post";
+
+export default async function fetchPosts(context: BareActionContext<PostState, RootState>)
+{
+    postUtils.postService.fetchPosts().then((posts:IPost[]) => {
+        for(let i=0; i<posts.length; i++) {
+            posts[i].meta = new PostMeta();
+        }
+        postStore.commitSetPosts({posts: posts});
+        for(let i=0; i<posts.length; i++) {
+            setMeta(context, postStore.state.posts[i]);
+        }
+    });
+
+    return
+}

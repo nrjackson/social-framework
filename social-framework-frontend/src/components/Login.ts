@@ -5,7 +5,7 @@ import { AuthService } from '../service/AuthService'
 import { IUser } from '../model/user';
 import TYPES from '../config/Types';
 import container from "../config/DependencyConfig";
-import auth from '../store/auth/auth'
+import authStore from '../store/auth/auth-store'
 
 @Component({
     name: 'login',
@@ -30,7 +30,7 @@ export default class Login extends Vue {
   }
 
   private loginSuccess(user: IUser): void {
-    auth.commitSetUser({user: user});
+    authStore.commitSetUser({user: user});
     this.$router.push("/");
   }
 

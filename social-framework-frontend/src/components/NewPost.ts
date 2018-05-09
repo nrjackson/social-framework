@@ -20,14 +20,4 @@ export default class NewPost extends PostComponent {
   mounted (): void {
     this.authenticate();
   }
-
-  private addPost():void {
-    this.postService.addPost({
-      title: this.title,
-      body: this.body
-    }).then((post:IPost) => {
-      this.findPosts();
-      this.$router.push({ name: 'posts' });
-    });
-  }
 }

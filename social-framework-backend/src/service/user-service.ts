@@ -13,9 +13,10 @@ export interface IUserService extends ISocialModelService<IUser> {
 
 @injectable()
 export class UserService extends SocialModelService<IUser> implements IUserService {
-  @postConstruct()
-  public initialize() {
-      this.modelName = 'User';
+  modelName = 'User';
+  
+  protected getModelName() {
+    return this.modelName;
   }
 
   public getUsers(): Promise<IUser[]> {

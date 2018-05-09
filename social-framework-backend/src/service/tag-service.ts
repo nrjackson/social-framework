@@ -21,7 +21,7 @@ export interface ITagService extends IGraphModelService {
  */
 @injectable()
 export class TagService extends GraphModelService implements ITagService {
-  protected modelName: string;
+  protected modelName: string = 'Tag';
 
   constructor(
     @inject(TYPES.IDBClient) dbClient: IGraphDBClient,

@@ -1,23 +1,35 @@
 import { injectable } from 'inversify';
 
 import { IModel, Model } from './model';
-import { IUser } from './user';
+import { IUser, User } from './user';
+import { IComment } from './comment';
 
 export interface IPost extends IModel {
   title: string;
   body: string;
-  tags: string[];
-  creator: IUser;
-  numLikes: number;
-  isLiked: boolean;
+  meta: PostMeta;
 }
 
 @injectable()
 export class Post extends Model implements IPost {
   public title: string;
   public body: string;
-  public tags: string[];
-  public creator: IUser;
+  public meta: PostMeta;
+}
+
+export class PostMeta {
+  public creator: IUser = new User();
   public numLikes: number = 0;
   public isLiked: boolean = false;
+  public tags: string[] = [];
+  public comments: IComment[] = [];
+  public newTitle: string = '';
+  public newBody: string = '';
+}
+
+export class PostForm {
+  public title: string = '';
+  public body: string = '';
+  public tag: string = '';
+  public tags: string[] = [];
 }

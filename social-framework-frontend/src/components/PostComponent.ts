@@ -5,7 +5,8 @@ import { IPost } from '../model/post';
 import { PostService } from '../service/PostService'
 import AuthComponent from './AuthComponent';
 import postStore from '../store/post/post-store'
-import { Meta } from "../model/meta";
+import commentStore from "../store/comment/comment-store";
+import { IComment } from "../model/comment";
 
 export default class PostComponent extends AuthComponent {
   protected postService: PostService;
@@ -13,45 +14,54 @@ export default class PostComponent extends AuthComponent {
   msg: string = "Welcome to Your Vue.js App";
 
   get posts() { return postStore.state.posts }
+  get postForm() { return postStore.state.postForm }
+/*   
+  get metaMap() { return postStore.state.postMetaMap }
 
-  protected initialize (): void {
-    super.initialize();
-    this.postService = container.get<PostService>(TYPES.PostService);
+  isLiked(post:IPost):boolean { 
+    let postMeta = postStore.state.postMetaMap.get(post.id);
+    if(postMeta) {return postMeta.isLiked}
+    else return false;
+  }
+  numLikes(post:IPost):number { 
+    // console.log('numLikes - postMetaMap: %j', postStore.state.postMetaMap);
+    return postStore.numPostLikes(post.id);
+  }
+ */
+
+  protected addPost():void {
+    postStore.dispatchAddPost();
   }
 
-  protected setMeta(index) {
-    this.postService.getNumLikes(postStore.state.posts[index]).then((numLikes:Meta<number>) => {
-      // console.log('setting num likes for index: ' + i + ': ' + numLikes.value);
-      postStore.commitSetNumLikes({index: index, numLikes: numLikes.value});
-    });
-    this.postService.getIsLiked(postStore.state.posts[index]).then((isLiked:Meta<boolean>) => {
-      // console.log('setting num likes for index: ' + i + ': ' + numLikes.value);
-      postStore.commitSetIsLiked({index: index, isLiked: isLiked.value});
-    });
-}
+  protected addFormTag():void {
+    postStore.commitAddTagToForm({});
+  }
+
+  protected removeFormTag(tag:string):void {
+    postStore.commitRemoveTagFromForm({tag: tag});
+  }
 
   protected findPosts():void {
-    this.postService.fetchPosts().then((posts:IPost[]) => {
-      for(let i=0; i<posts.length; i++) {
-        posts[i].numLikes = 0;
-        posts[i].isLiked = false;
-      }
-      postStore.commitSetPosts({posts: posts});
-      for(let i=0; i<posts.length; i++) {
-        this.setMeta(i);
-      }
-    });
+    postStore.dispatchFetchPosts();
   }
   
-  protected likePost(index):void {
-    this.postService.likePost(postStore.state.posts[index]).then((post:IPost) => {
-      this.setMeta(index);
-    });
+  protected likePost(post:IPost):void {
+    postStore.dispatchLikePost(post);
   }
   
-  protected unlikePost(index):void {
-    this.postService.unlikePost(postStore.state.posts[index]).then((post:IPost) => {
-      this.setMeta(index);
-    });
+  protected unlikePost(post:IPost):void {
+    postStore.dispatchUnlikePost(post);
+  }
+  
+  protected addComment(post:IPost):void {
+    postStore.dispatchAddComment(post);
+  }
+  
+  protected likeComment(comment:IComment):void {
+    commentStore.dispatchLikeComment(comment);
+  }
+  
+  protected unlikeComment(comment:IComment):void {
+    commentStore.dispatchUnlikeComment(comment);
   }
 }
