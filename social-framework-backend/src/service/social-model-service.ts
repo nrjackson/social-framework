@@ -6,9 +6,10 @@ import { IModel } from '../model/model';
 import { Config } from '../constant/config';
 import { ITagService } from './tag-service';
 import { IGraphDBClient } from '../utils/graph-db-client';
-import { SearchItem, SearchRelation } from '../model/search/search-item';
+import { SearchRelation } from '../model/search/search-item';
 import { IComment } from '../model/comment';
 import { ITag } from '../model/tag';
+import { SearchQuery } from '../model/search/search-query';
 
 export interface ISocialModelService<ModelType extends IModel> extends IGraphModelService {
   getAll(): Promise<ModelType[]>;
@@ -29,12 +30,14 @@ export interface ISocialModelService<ModelType extends IModel> extends IGraphMod
   unlike(unliked: ModelType, liker: IUser): Promise<ModelType>;
   follow(followed: ModelType, follower: IUser): Promise<ModelType>;
   unfollow(unfollowed: ModelType, follower: IUser): Promise<ModelType>;
+  countFollowers(post: ModelType): Promise<number>;
+  isFollowedByUser(post: ModelType, user: IUser): Promise<boolean>;
   getTags(taggedModel: ModelType): Promise<string[]>;
   addTags(tags: string[], taggedModel: ModelType): Promise<ModelType>;
   removeTag(tag: string, taggedModel: ModelType): Promise<any>;
   getComments(commentedModel: ModelType): Promise<IComment[]>;
   getCreator(created: ModelType): Promise<IUser>;
-  getWithRelations(searchItems: SearchItem[], currUser:IUser): Promise<ModelType[]>;
+  search(query: SearchQuery, currUser:IUser): Promise<ModelType[]>;
 }
 
 /*
@@ -93,6 +96,14 @@ export abstract class SocialModelService<ModelType extends IModel> extends Graph
 
   public isLikedByUser(model: ModelType, user: IUser): Promise<boolean> {
     return this.userHasReaction(model, user, Config.RELATION_LIKE);
+  }
+
+  public countFollowers(model: ModelType): Promise<number> {
+    return this.countReactions(model, Config.RELATION_FOLLOW);
+  }
+
+  public isFollowedByUser(model: ModelType, user: IUser): Promise<boolean> {
+    return this.userHasReaction(model, user, Config.RELATION_FOLLOW);
   }
 
   public react(reactedTo: ModelType, reactor: IUser, reaction: string): Promise<ModelType> {
@@ -240,8 +251,10 @@ export abstract class SocialModelService<ModelType extends IModel> extends Graph
     });
   }
 
-  public getWithRelations(searchItems: SearchItem[], currUser:IUser): Promise<ModelType[]> {
+  public search(query: SearchQuery, currUser:IUser): Promise<ModelType[]> {
+    const searchItems = query.searchItems;
     let relations: SearchRelation[] = [];
+    let aliases:string[] = [];
     for(let i=0; i<searchItems.length; i++) {
       console.log('getWithRelations type: ' + searchItems[i].type);
       let searchInfo = Config.searchItemMap[searchItems[i].type];
@@ -250,14 +263,20 @@ export abstract class SocialModelService<ModelType extends IModel> extends Graph
       let property:string = searchItems[i].property;
       let value:string = searchItems[i].value;
       let searchRelation = new SearchRelation();
+      searchRelation.toModel = this.getModelName();
+      searchRelation.toAlias = this.getModelName().toLowerCase();
+      searchRelation.relation = relation;
       searchRelation.fromModel = modelName;
       searchRelation.fromAlias = modelName.toLowerCase();
-      searchRelation.relation = relation;
-      searchRelation.toModel = modelName;
-      searchRelation.toAlias = modelName.toLowerCase();
+      if(aliases.indexOf(searchRelation.fromAlias) < 0) {
+        aliases.push(searchRelation.fromAlias);
+      } else {
+        searchRelation.fromAlias += i;
+      }
+      let subRelation: SearchRelation;
       switch(value) {
-        case 'following' :
-          let subRelation = new SearchRelation();
+        case 'followed' :
+        subRelation = new SearchRelation();
           subRelation.fromModel = 'User';
           subRelation.fromAlias = 'cuser';
           subRelation.fromProperty = 'id';
@@ -267,13 +286,24 @@ export abstract class SocialModelService<ModelType extends IModel> extends Graph
           subRelation.toAlias = 'user';
           relations.push(subRelation);
           break;
+        case 'followers' :
+          subRelation = new SearchRelation();
+          subRelation.toModel = 'User';
+          subRelation.toAlias = 'cuser';
+          subRelation.toProperty = 'id';
+          subRelation.toValue = currUser.id;
+          subRelation.relation = Config.RELATION_FOLLOW
+          subRelation.fromModel = 'User';
+          subRelation.fromAlias = 'user';
+          relations.push(subRelation);
+          break;
         case 'me' :
-          searchRelation.toProperty = property;
-          searchRelation.toValue = currUser.id;
+          searchRelation.fromProperty = property;
+          searchRelation.fromValue = currUser.id;
           break;
         default :
-        searchRelation.toProperty = property;
-        searchRelation.toValue = value;
+        searchRelation.fromProperty = property;
+        searchRelation.fromValue = value;
       }
       relations.push(searchRelation);
     }

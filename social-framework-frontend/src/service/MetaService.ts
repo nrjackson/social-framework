@@ -17,6 +17,10 @@ export interface MetaService<ModelType extends IModel> {
   getComments (model: ModelType):Promise<IComment[]>;
   addComment (model: ModelType, comment:IComment):Promise<IComment>;
   getTags (model: ModelType):Promise<Meta<string[]>>;
+  getNumFollowers (model: ModelType):Promise<Meta<number>>;
+  getIsFollowed (model: ModelType):Promise<Meta<boolean>>;
+  follow (model: ModelType):Promise<ModelType>;
+  unfollow (model: ModelType):Promise<ModelType>;
 }
 
 @injectable()
@@ -60,5 +64,21 @@ export class MetaServiceImpl<ModelType extends IModel> implements MetaService<Mo
 
   public unlike (model: ModelType):Promise<ModelType> {
     return this.apiService.delete<ModelType>(`${this.serviceName}/${model.id}/likes/`);
+  }
+
+  public getNumFollowers (model: ModelType):Promise<Meta<number>> {
+    return this.apiService.getAny<Meta<number>>(`${this.serviceName}/${model.id}/followers/count`);
+  }
+
+  public getIsFollowed (model: ModelType):Promise<Meta<boolean>> {
+    return this.apiService.getAny<Meta<boolean>>(`${this.serviceName}/${model.id}/followers/user`);
+  }
+
+  public follow (model: ModelType):Promise<ModelType> {
+    return this.apiService.post<ModelType>(`${this.serviceName}/${model.id}/followers/`, {});
+  }
+
+  public unfollow (model: ModelType):Promise<ModelType> {
+    return this.apiService.delete<ModelType>(`${this.serviceName}/${model.id}/followers/`);
   }
 }

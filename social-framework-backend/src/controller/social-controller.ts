@@ -63,6 +63,10 @@ export abstract class SocialController<ModelType> {
     return this.numReactions(req, res, next, Config.RELATION_LIKE);
   }
 
+  protected numFollowers(req: Request, res: Response, next: NextFunction): Promise<Meta<number>> {
+    return this.numReactions(req, res, next, Config.RELATION_FOLLOW);
+  }
+
   protected isReacted(req: Request, res: Response, next: NextFunction, reaction:string): Promise<Meta<boolean>> {
     return new Promise<Meta<boolean>>((resolve, reject) => {
       this.withUserAndModel(req, res, next, (error, currUser: IUser, theModel: IModel) => {
@@ -79,6 +83,10 @@ export abstract class SocialController<ModelType> {
 
   protected isLiked(req: Request, res: Response, next: NextFunction): Promise<Meta<boolean>> {
     return this.isReacted(req, res, next, Config.RELATION_LIKE);
+  }
+
+  protected isFollowed(req: Request, res: Response, next: NextFunction): Promise<Meta<boolean>> {
+    return this.isReacted(req, res, next, Config.RELATION_FOLLOW);
   }
 
   protected react(req: Request, res: Response, next: NextFunction, reaction:string): Promise<Meta<boolean>> {
@@ -115,6 +123,14 @@ export abstract class SocialController<ModelType> {
 
   protected unlike(req: Request, res: Response, next: NextFunction): Promise<Meta<boolean>> {
     return this.unreact(req, res, next, Config.RELATION_LIKE);
+  }
+
+  protected follow(req: Request, res: Response, next: NextFunction): Promise<Meta<boolean>> {
+    return this.react(req, res, next, Config.RELATION_FOLLOW);
+  }
+
+  protected unfollow(req: Request, res: Response, next: NextFunction): Promise<Meta<boolean>> {
+    return this.unreact(req, res, next, Config.RELATION_FOLLOW);
   }
 
   protected getCreator(req: Request, res: Response, next: NextFunction): Promise<IUser> {

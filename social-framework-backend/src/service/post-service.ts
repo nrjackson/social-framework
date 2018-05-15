@@ -1,8 +1,8 @@
-import { injectable, postConstruct } from 'inversify';
+import { injectable } from 'inversify';
 import { IPost } from '../model/post';
 import { IUser } from '../model/user';
 import { ISocialModelService, SocialModelService } from './social-model-service';
-import { SearchItem } from '../model/search/search-item';
+import { SearchQuery } from '../model/search/search-query';
 
 export interface IPostService extends ISocialModelService<IPost> {
   getPosts(): Promise<IPost[]>;
@@ -10,7 +10,7 @@ export interface IPostService extends ISocialModelService<IPost> {
   newPost(post: IPost, creator: IUser, tags: string[]): Promise<IPost>;
   updatePost(id: string, post: IPost): Promise<IPost>;
   deletePost(id: string): Promise<any>;
-  getPostWithRelations(searchItems: SearchItem[], currUser:IUser): Promise<IPost[]>;
+  searchPosts(query: SearchQuery, currUser:IUser): Promise<IPost[]>;
 }
 
 /*
@@ -53,8 +53,12 @@ export class PostService extends SocialModelService<IPost> implements IPostServi
     return this.deleteModel(id);
   }
 
-  public getPostWithRelations(searchItems: SearchItem[], currUser:IUser): Promise<IPost[]> {
-    return this.getWithRelations(searchItems, currUser);
+  public searchPosts(query: SearchQuery, currUser:IUser): Promise<IPost[]> {
+    if(query.searchItems && query.searchItems.length > 0) {
+      return this.search(query, currUser);
+    } else {
+      return this.getPosts();
+    }
   }
 
 }

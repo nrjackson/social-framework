@@ -7,20 +7,23 @@ import postStore from "../post-store";
 import postUtils from "./post-utils";
 import { IPost } from "../../../model/post";
 import { Meta } from "../../../model/meta";
-import { IUser } from "../../../model/user";
+import { IUser, UserMeta } from "../../../model/user";
+import userStore from "../../user/user-store";
 
 export default async function fetchCreator(context: BareActionContext<PostState, RootState>, post:IPost)
 {
     postUtils.postService.getCreator(post).then((creator:IUser) => {
         // console.log('setting num likes for index: ' + i + ': ' + numLikes.value);
         if(creator) {
-            postStore.commitSetCreator({post: post, creator: creator});
+            if(!userStore.state.users.has(creator.id)) {
+                console.log("setting user in map: %j", creator)
+                creator.meta = new UserMeta();
+                userStore.commitSetUser({user: creator});
+                userStore.dispatchSetMeta(creator);
+            }
+            console.log("setting creatpr in post: %j", userStore.state.users.get(creator.id))
+            postStore.commitSetCreator({post: post, creator: userStore.state.users.get(creator.id)});
         }
-/* 
-        for(let i=0; i<users.length; i++) {
-            fetch.Creator
-        }
- */        
     });
 
     return

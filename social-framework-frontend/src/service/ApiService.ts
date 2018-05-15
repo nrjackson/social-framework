@@ -20,6 +20,7 @@ export interface ApiService {
   getAny<T> (url:string):Promise<T>;
   get<T extends IModel[]> (url:string):Promise<T>;
   getSingle<T extends IModel> (url:string):Promise<T>;
+  search<T extends IModel[]> (url:string, params):Promise<T>;
   post<T extends IModel> (url:string, params):Promise<T>;
   put<T extends IModel> (url:string, params):Promise<T>;
   delete<T extends IModel> (url:string):Promise<T>;
@@ -79,6 +80,10 @@ export class ApiServiceImpl implements ApiService {
 
   public getSingle<T extends IModel> (url:string):Promise<T> {
     return this.getInternal<T>(url);
+  }
+
+  public search<T extends IModel[]> (url:string, params):Promise<T> {
+    return this.sendRequest<T>('post', url, params);
   }
 
   public post<T extends IModel> (url:string, params):Promise<T> {

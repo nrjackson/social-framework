@@ -18,6 +18,7 @@ const stateReader = moduleBuilder.state();
 
 const authStore = {
     get state() { return stateReader() },
+    get users() { return this.state.users },
     commitSetUser: moduleBuilder.commit((state: AuthState, payload: { user: IUser }) => {
         state.user = payload.user;
         state.isAuthenticated = true;

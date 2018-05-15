@@ -9,8 +9,13 @@ import fetchPosts from "./actions/fetch-posts"
 import likePost from "./actions/like-post"
 import unlikePost from "./actions/unlike-post"
 import addComment from "./actions/add-comment"
+import addSearchTag from "./actions/add-search-tag"
+import removeSearchTag from "./actions/remove-search-tag"
+import toggleCreatedByMe from "./actions/created-by-me"
+import toggleCreatedByFollowing from "./actions/created-by-following"
 import { IComment } from "../../model/comment";
 import { IUser } from "../../model/user";
+import { SearchQuery, SearchForm } from "../../model/search/search-query";
 
 const initialState: PostState = {
     posts: [],
@@ -18,6 +23,8 @@ const initialState: PostState = {
     post: new Post(),
     postStatus: 0,
     postForm: new PostForm(),
+    postQuery: new SearchQuery(),
+    postSearchForm: new SearchForm(),
 }
 
 const storeBuilder = getStoreBuilder<RootState>()
@@ -66,12 +73,19 @@ const postStore = {
         payload.post.meta.newTitle = '';
         payload.post.meta.newBody = '';
     }, "resetCommentForm"),
+    commitSetQuery: moduleBuilder.commit((state: PostState, payload: { query: SearchQuery }) => {
+        state.postQuery = payload.query;
+    }, "setPostQuery"),
 
     dispatchAddPost: moduleBuilder.dispatch(addPost),
     dispatchFetchPosts: moduleBuilder.dispatch(fetchPosts),
     dispatchLikePost: moduleBuilder.dispatch(likePost),
     dispatchUnlikePost: moduleBuilder.dispatch(unlikePost),
     dispatchAddComment: moduleBuilder.dispatch(addComment),
+    dispatchAddSearchTag: moduleBuilder.dispatch(addSearchTag),
+    dispatchRemoveSearchTag: moduleBuilder.dispatch(removeSearchTag),
+    dispatchToggleCreatedByMe: moduleBuilder.dispatch(toggleCreatedByMe),
+    dispatchToggleCreatedByFollowing: moduleBuilder.dispatch(toggleCreatedByFollowing),
 }
 
 export default postStore

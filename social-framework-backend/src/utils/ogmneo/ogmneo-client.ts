@@ -207,28 +207,28 @@ export class OgmNeoDBClient implements IGraphDBClient {
 
     for(let i=0; i<relations.length; i++) {
       let relation = relations[i];
-      if(!relation.fromAlias) relation.fromAlias=relation.fromModel;
       if(!relation.toAlias) relation.toAlias=relation.toModel;
-      if((cypher + varClause).indexOf(`(${relation.fromAlias}:${relation.fromModel})`) <= 0) {
-        varClause += `,(${relation.fromAlias}:${relation.fromModel})`;
-      }
+      if(!relation.fromAlias) relation.fromAlias=relation.fromModel;
       if((cypher + varClause).indexOf(`(${relation.toAlias}:${relation.toModel})`) <= 0) {
         varClause += `,(${relation.toAlias}:${relation.toModel})`;
       }
-      whereClause += whereClause.length === 0 ? ' WHERE ' : ' AND ';
-      whereClause += `(${relation.fromAlias}) -[:${relation.relation}]- (${relation.toAlias})`;
-      if(relation.fromProperty) {
-        if(relation.fromProperty.toLowerCase() === 'id') {
-          whereClause += ` AND ID(${relation.fromAlias})=${relation.fromValue}`;
-        } else {
-          whereClause += ` AND ${relation.fromAlias}.${relation.fromProperty}='${relation.fromValue}'`;
-        }
+      if((cypher + varClause).indexOf(`(${relation.fromAlias}:${relation.fromModel})`) <= 0) {
+        varClause += `,(${relation.fromAlias}:${relation.fromModel})`;
       }
+      whereClause += whereClause.length === 0 ? ' WHERE ' : ' AND ';
+      whereClause += `(${relation.toAlias}) <-[:${relation.relation}]- (${relation.fromAlias})`;
       if(relation.toProperty) {
-        if(relation.toProperty === 'id') {
+        if(relation.toProperty.toLowerCase() === 'id') {
           whereClause += ` AND ID(${relation.toAlias})=${relation.toValue}`;
         } else {
           whereClause += ` AND ${relation.toAlias}.${relation.toProperty}='${relation.toValue}'`;
+        }
+      }
+      if(relation.fromProperty) {
+        if(relation.fromProperty === 'id') {
+          whereClause += ` AND ID(${relation.fromAlias})=${relation.fromValue}`;
+        } else {
+          whereClause += ` AND ${relation.fromAlias}.${relation.fromProperty}='${relation.fromValue}'`;
         }
       }
     }

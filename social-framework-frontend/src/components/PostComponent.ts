@@ -7,6 +7,8 @@ import AuthComponent from './AuthComponent';
 import postStore from '../store/post/post-store'
 import commentStore from "../store/comment/comment-store";
 import { IComment } from "../model/comment";
+import userStore from "../store/user/user-store";
+import { IUser } from "../model/user";
 
 export default class PostComponent extends AuthComponent {
   protected postService: PostService;
@@ -15,6 +17,7 @@ export default class PostComponent extends AuthComponent {
 
   get posts() { return postStore.state.posts }
   get postForm() { return postStore.state.postForm }
+  get postSearchForm() { return postStore.state.postSearchForm }
 /*   
   get metaMap() { return postStore.state.postMetaMap }
 
@@ -63,5 +66,29 @@ export default class PostComponent extends AuthComponent {
   
   protected unlikeComment(comment:IComment):void {
     commentStore.dispatchUnlikeComment(comment);
+  }
+  
+  protected followUser(user:IUser):void {
+    userStore.dispatchFollowUser(user);
+  }
+  
+  protected unfollowUser(user:IUser):void {
+    userStore.dispatchUnfollowUser(user);
+  }
+
+  protected addSearchTag():void {
+    postStore.dispatchAddSearchTag();
+  }
+
+  protected removeSearchTag(tag:string):void {
+    postStore.dispatchRemoveSearchTag(tag);
+  }
+
+  protected toggleCreatedByMe():void {
+    postStore.dispatchToggleCreatedByMe();
+  }
+
+  protected toggleCreatedByFollowing():void {
+    postStore.dispatchToggleCreatedByFollowing();
   }
 }

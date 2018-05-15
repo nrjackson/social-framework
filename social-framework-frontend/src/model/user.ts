@@ -8,6 +8,7 @@ export interface IUser extends IModel {
   username: string;
   registeredAt: string;
   token: string;
+  meta: UserMeta;
 }
 
 @injectable()
@@ -17,4 +18,12 @@ export class User extends Model implements IUser {
   public username: string;
   public registeredAt: string;
   public token: string;
+  public meta: UserMeta = new UserMeta();
+}
+
+export class UserMeta {
+  public numFollowers: number;
+  public isFollowed: boolean = false;
+  public numFollowing: number;
+  public isFollowing: boolean = false;
 }

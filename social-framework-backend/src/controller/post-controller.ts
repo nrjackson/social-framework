@@ -27,7 +27,7 @@ export class PostController extends SocialController<IPost>  {
   public findPosts(req: Request, res: Response, next: NextFunction): Promise<IPost[]> {
     return new Promise<IPost[]>((resolve, reject) => {
       this.withUser(req, res, next).then((currUser) => {
-        this.postService.getPostWithRelations(req.body.searchItems, currUser).then((posts:IPost[]) => {
+        this.postService.searchPosts(req.body.query, currUser).then((posts:IPost[]) => {
           return resolve(posts);
         }).catch((err) => {
           console.log('Error searching by relations: ' + err);

@@ -49,6 +49,25 @@
           </div>
           <br>
           
+          <!-- Filter Form --> 
+          <div class="w3-card w3-round w3-white w3-hide-small">
+            <div class="w3-container">
+              <p>Filter:</p>
+              <div class="w3-left-align">
+                Created By:<br/>
+                <input @change="toggleCreatedByMe()" type="checkbox" id="createdByMe" v-model="postSearchForm.createdByMe">
+                <label for="createdByMe">Me</label>
+                <input @change="toggleCreatedByFollowing()" type="checkbox" id="createdByFollowing" v-model="postSearchForm.createdByFollowing">
+                <label for="createdByFollowing">Following</label>
+                <input @keyup.enter="addSearchTag()" type="text" name="tags" placeholder="TAG" v-model="postSearchForm.tag" class="w3-margin-bottom">
+                <span v-for="(tag) in postSearchForm.tags" class="w3-tag w3-medium w3-theme-d5 w3-margin-right w3-margin-bottom"> 
+                  {{tag}} &nbsp;<a @click="removeSearchTag(tag)" type="button" class="w3-theme-d5"> X</a>
+                </span>
+              </div>
+            </div>
+          </div>
+          <br>
+          
           <!-- Accordion -->
           <div class="w3-card w3-round">
             <div class="w3-white">
@@ -148,7 +167,10 @@
           <div class="w3-container w3-card w3-white w3-round w3-margin" v-for="(post) in posts"><br>
             <img src="../assets/w3images/avatar2.png" alt="Avatar" class="w3-left w3-circle w3-margin-right" style="width:60px">
             <span class="w3-right w3-opacity">1 min</span>
-            <h4>{{post.meta.creator.name}}</h4><br>
+            <h4>{{post.meta.creator.name}} 
+              <button v-if="!post.meta.creator.meta.isFollowed" @click="followUser(post.meta.creator)" type="button" class="w3-button w3-text-theme"><i class="far fa-thumbs-up"></i> Follow ({{post.meta.creator.meta.numFollowers}})</button> 
+              <button v-if="post.meta.creator.meta.isFollowed" @click="unfollowUser(post.meta.creator)" type="button" class="w3-button w3-text-theme"><i class="fa fa-thumbs-up"></i> Unfollow ({{post.meta.creator.meta.numFollowers}})</button> 
+            </h4><br>
             <hr class="w3-clear">
             <p class="w3-theme-dark">{{post.title}}</p>
             <p class="w3-left-align">{{post.body}}<br/>

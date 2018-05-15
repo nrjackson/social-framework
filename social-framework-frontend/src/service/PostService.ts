@@ -6,9 +6,10 @@ import container from "../config/DependencyConfig";
 import { Meta } from '../model/meta';
 import { IComment } from '../model/comment';
 import { MetaService, MetaServiceImpl } from './MetaService';
+import { SearchQuery } from '../model/search/search-query';
 
 export interface PostService extends MetaService<IPost> {
-  fetchPosts ():Promise<IPost[]>;
+  fetchPosts (query: SearchQuery):Promise<IPost[]>;
   addPost (post:IPost, tags:string[]):Promise<IPost>;
 }
 
@@ -19,8 +20,8 @@ export class PostServiceImpl extends MetaServiceImpl<IPost> implements PostServi
     this.serviceName = 'posts';
   }
 
-  public fetchPosts ():Promise<IPost[]> {
-    return this.apiService.get<IPost[]>('posts');
+  public fetchPosts (query: SearchQuery):Promise<IPost[]> {
+    return this.apiService.search<IPost[]>('posts/search', {query: query});
   }
 
   public addPost (post:IPost, tags:string[]):Promise<IPost> {
