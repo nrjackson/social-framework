@@ -176,8 +176,11 @@
             <p class="w3-left-align">{{post.body}}<br/>
               <span v-for="(tag) in post.meta.tags" class="w3-tag w3-medium w3-theme-d5 w3-margin-right">{{tag}}</span>
               <br/>
+              <like-button v-bind:post="post" @like="likePost(post)" @unlike="unlikePost(post)" />
+<!--
               <button v-if="!post.meta.isLiked" @click="likePost(post)" type="button" class="w3-button w3-text-theme"><i class="far fa-thumbs-up"></i>  Like ({{post.meta.numLikes}})</button> 
               <button v-if="post.meta.isLiked" @click="unlikePost(post)" type="button" class="w3-button w3-text-theme"><i class="fa fa-thumbs-up"></i>  Unlike ({{post.meta.numLikes}})</button> 
+-->              
             </p>
             <!--
             <div class="w3-row-padding" style="margin:0 -16px">

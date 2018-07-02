@@ -259,19 +259,28 @@ export abstract class SocialModelService<ModelType extends IModel> extends Graph
       console.log('getWithRelations type: ' + searchItems[i].type);
       let searchInfo = Config.searchItemMap[searchItems[i].type];
       let modelName:string = searchInfo.modelName;
+      let modelAlias = modelName.toLowerCase();
+      if(aliases.indexOf(modelAlias) < 0) {
+        aliases.push(modelAlias);
+      } else {
+        modelAlias += i;
+      }
       let relation:string = searchInfo.relation;
+      let direction:string = searchInfo.direction;
       let property:string = searchItems[i].property;
       let value:string = searchItems[i].value;
       let searchRelation = new SearchRelation();
-      searchRelation.toModel = this.getModelName();
-      searchRelation.toAlias = this.getModelName().toLowerCase();
       searchRelation.relation = relation;
-      searchRelation.fromModel = modelName;
-      searchRelation.fromAlias = modelName.toLowerCase();
-      if(aliases.indexOf(searchRelation.fromAlias) < 0) {
-        aliases.push(searchRelation.fromAlias);
+      if(direction === Config.DIRECTION_FROM) {
+        searchRelation.toModel = modelName;
+        searchRelation.toAlias = modelAlias;
+        searchRelation.fromModel = this.getModelName();
+        searchRelation.fromAlias = this.getModelName().toLowerCase();
       } else {
-        searchRelation.fromAlias += i;
+        searchRelation.toModel = this.getModelName();
+        searchRelation.toAlias = this.getModelName().toLowerCase();
+        searchRelation.fromModel = modelName;
+        searchRelation.fromAlias = modelAlias;
       }
       let subRelation: SearchRelation;
       switch(value) {
